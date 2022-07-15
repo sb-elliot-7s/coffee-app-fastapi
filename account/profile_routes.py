@@ -57,8 +57,11 @@ async def delete_account(
     if not (_ := await ProfilePresenter(**repository)
             .delete_account(account=account)):
         return responses.JSONResponse({'detail': 'Profile not deleted'})
-    return responses. \
-        JSONResponse({'detail': f'Profile {account.username} has been deleted'})
+    return responses.JSONResponse(content={
+        'detail': f'Profile {account.username} has been deleted'
+    },
+        status_code=status.HTTP_204_NO_CONTENT
+    )
 
 
 @profile_routers.get(**response_data.get('get'))

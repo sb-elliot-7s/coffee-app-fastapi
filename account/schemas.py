@@ -13,7 +13,7 @@ class BaseAccountSchema(BaseModel):
 
 
 class CreateAccountSchema(BaseAccountSchema):
-    password: str
+    password: str = Field(min_length=5)
 
 
 class UpdateAccountSchema(BaseModel):
