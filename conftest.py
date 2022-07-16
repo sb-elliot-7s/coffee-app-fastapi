@@ -9,6 +9,7 @@ from main import app
 import motor.motor_asyncio
 from account.deps import get_account_collection
 from coffee.deps import get_coffee_collection, get_rating_collection
+from orders.deps import get_order_collection, get_order_coffee_collection
 
 
 @pytest.fixture(scope="session")
@@ -49,6 +50,16 @@ async def get_test_rating_collection():
     return db.test_rating_collection
 
 
+async def get_test_order_collection():
+    db = await get_test_db()
+    return db.test_order_collection
+
+
+async def get_test_coffee_order_collection():
+    db = await get_test_db()
+    return db.test_coffee_order_collection
+
+
 @pytest.fixture(scope='session')
 async def session():
     test_database = await get_test_db()
@@ -69,7 +80,7 @@ async def save_user(client, username: str, password: str):
     return res.json()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 async def first_user(client_without_jwt):
     return await save_user(
         client_without_jwt, username='elliot', password='1234567890'
@@ -80,7 +91,7 @@ async def retrieve_access_token(token_service: TokenService, username: str):
     return await token_service.encode_token(username=username)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 @pytest.mark.asyncio
 async def first_client_with_jwt_token(
         get_token_service: TokenService, first_user) -> AsyncClient:
@@ -91,7 +102,25 @@ async def first_client_with_jwt_token(
         yield client
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
+async def second_user(client_without_jwt):
+    return await save_user(
+        client_without_jwt, username='second_user', password='1234567890'
+    )
+
+
+@pytest.fixture(scope='session')
+@pytest.mark.asyncio
+async def second_client_with_jwt_token(
+        get_token_service: TokenService, second_user) -> AsyncClient:
+    token = await retrieve_access_token(token_service=get_token_service,
+                                        username=second_user['username'])
+    async with AsyncClient(app=app, base_url='http://testserver') as client:
+        client.headers.update({'Authorization': f'Bearer {token}'})
+        yield client
+
+
+@pytest.fixture(scope='session')
 async def admin_user(client_without_jwt):
     response = await client_without_jwt.post(
         url='/account/registration',
@@ -104,7 +133,7 @@ async def admin_user(client_without_jwt):
     return response.json()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 @pytest.mark.asyncio
 async def admin_client_with_jwt(
         get_token_service: TokenService, admin_user) -> AsyncClient:
@@ -119,3 +148,7 @@ async def admin_client_with_jwt(
 app.dependency_overrides[get_account_collection] = get_test_account_collection
 app.dependency_overrides[get_coffee_collection] = get_test_coffee_collection
 app.dependency_overrides[get_rating_collection] = get_test_rating_collection
+app.dependency_overrides[get_order_collection] = get_test_order_collection
+app.dependency_overrides[
+    get_order_coffee_collection
+] = get_test_coffee_order_collection

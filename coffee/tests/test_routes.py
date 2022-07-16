@@ -91,9 +91,9 @@ class TestCoffeeRoutes:
     ])
     @pytest.mark.asyncio
     async def test_rate_coffee(
-            self, first_client_with_jwt_token, rating, coffee_id
+            self, second_client_with_jwt_token, rating, coffee_id
     ):
-        response = await first_client_with_jwt_token.post(
+        response = await second_client_with_jwt_token.post(
             url=f'/coffee/rate/{coffee_id()}', json={'rating': rating})
         assert response.status_code == 201
         assert response.json()['rating'] == rating
@@ -105,9 +105,12 @@ class TestCoffeeRoutes:
     ])
     @pytest.mark.asyncio
     async def test_change_rate(
-            self, first_client_with_jwt_token, old_rating, new_rating, rating_id
+            self, second_client_with_jwt_token,
+            old_rating,
+            new_rating,
+            rating_id
     ):
-        response = await first_client_with_jwt_token.patch(
+        response = await second_client_with_jwt_token.patch(
             url=f'/coffee/rate/{rating_id()}', json={'rating': new_rating})
         assert response.status_code == 200
         assert response.json()['rating'] == new_rating
