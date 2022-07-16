@@ -9,6 +9,8 @@ class Configs(BaseSettings):
     algorithm: str
     exp_time: int
 
+    test: bool
+
     class Config:
         env_file = '.env'
         env_file_encoding = 'utf-8'

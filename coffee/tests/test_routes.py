@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from .common import CommonDataForTests
 from image_service.image_service import ImageService
@@ -124,7 +126,8 @@ class TestCoffeeRoutes:
             url=f'/coffee/{coffee_id()}')
         assert response.status_code == status
         assert response.json() == resp
-
+        # ex time cache 1 sec on test mode
+        await asyncio.sleep(2)
         new_response = await admin_client_with_jwt.get(url='/coffee/')
         assert len(new_response.json()) == 2
 

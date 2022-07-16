@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+
 from bson import ObjectId
 from .interfaces.repositories_interface import CoffeeRepositoriesInterface
 from .schemas import CreateCoffeeSchema, CreateRateSchema
@@ -8,6 +9,8 @@ from image_service.interfaces import ImageServiceInterface
 from exceptions import raise_obj_not_found
 from .prepare_data import PrepareDataMixin
 from .utils import Utils
+from configs import get_configs
+from .decorators import cache_detail_coffee, cache_coffees
 
 
 class CoffeeRepositories(CoffeeRepositoriesInterface):
@@ -22,6 +25,7 @@ class CoffeeRepositories(CoffeeRepositoriesInterface):
             raise_obj_not_found(element='Coffee')
         return coffee
 
+    @cache_coffees(ex=1 if get_configs().test else 100)
     async def list_of_all_coffees(self, limit: int, skip: int):
         cursor = self.__coffee_collection \
             .find() \
@@ -30,6 +34,7 @@ class CoffeeRepositories(CoffeeRepositoriesInterface):
             .sort('created', -1)
         return [coffee async for coffee in cursor]
 
+    @cache_detail_coffee(ex=100)
     async def detail_coffee(self, coffee_id: str):
         return await self.__get_coffee(_id=ObjectId(coffee_id))
 
@@ -51,8 +56,7 @@ class CoffeeRepositories(CoffeeRepositoriesInterface):
             .prepare_update_data(account=account, coffee_data=coffee_data,
                                  coffee_id=coffee_id, image_ids=image_ids)
         if not (coffee := await self.__coffee_collection
-                .find_one_and_update(**data)
-        ):
+                .find_one_and_update(**data)):
             raise_obj_not_found(element=f'Coffee {coffee_id} not found')
         return coffee
 

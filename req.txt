@@ -1,6 +1,8 @@
 aiofiles==0.8.0
+aioredis==2.0.1
 anyio==3.6.1
 asgiref==3.5.2
+async-timeout==4.0.2
 attrs==21.4.0
 bcrypt==3.2.2
 certifi==2022.6.15
