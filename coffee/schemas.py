@@ -34,19 +34,13 @@ class CoffeeSchema(CreateCoffeeSchema):
     @classmethod
     def from_list(cls, lst_str: str):
         return [
-            {
-                **x,
-                '_id': ObjectId(x.get('_id'))
-            } for x in json.loads(lst_str)
+            {**x, '_id': ObjectId(x.get('_id'))} for x in json.loads(lst_str)
         ]
 
     @classmethod
     def from_obj(cls, obj: str):
         result: dict = json.loads(obj)
-        return {
-            **result,
-            '_id': ObjectId(result.get('_id'))
-        }
+        return {**result, '_id': ObjectId(result.get('_id'))}
 
     class Config:
         json_encoders = {
