@@ -1,3 +1,6 @@
+from typing import Union
+
+
 class MongoFunctionMixin:
 
     @staticmethod
@@ -54,3 +57,36 @@ class MongoFunctionMixin:
     @staticmethod
     def sort(**values):
         return {'$sort': values}
+
+    @staticmethod
+    def project(**expression):
+        return {'$project': expression}
+
+    @staticmethod
+    def group_by(id_expression: Union[dict, str], **field_and_accumulator):
+        return {
+            '$group': {'_id': id_expression, **field_and_accumulator}
+        }
+
+    @staticmethod
+    def round_value(value, decimal_place: int = 2):
+        return {'$round': [value, decimal_place]}
+
+    @staticmethod
+    def map_aggregation(array_name: str, variable_name: str, expression: dict):
+        return {
+            '$map':
+                {
+                    'input': f'${array_name}',
+                    'as': variable_name,
+                    'in': expression
+                }
+        }
+
+    @staticmethod
+    def multiply(*expressions):
+        return {'$multiply': [*expressions]}
+
+    @staticmethod
+    def sum_values(values: Union[str, list, dict]):
+        return {'$sum': values}
