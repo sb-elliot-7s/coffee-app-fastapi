@@ -1,5 +1,8 @@
+import json
 from datetime import datetime
 from typing import Optional
+
+from bson import ObjectId
 from fastapi import Form
 from pydantic import BaseModel, Field
 from objid import ObjID
@@ -32,6 +35,13 @@ class AccountSchema(BaseAccountSchema):
     is_active: bool
     created: datetime
     updated: Optional[datetime]
+
+    @classmethod
+    def from_str_obj(cls, obj: str):
+        acc = json.loads(obj)
+        return {**acc, '_id': ObjectId(acc.get('_id'))}
+
+
 
     class Config:
         json_encoders = {

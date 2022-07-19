@@ -5,6 +5,24 @@ from configs import get_configs
 from exceptions import raise_obj_not_found
 from account.schemas import AccountSchema
 from account.deps import get_account_collection
+from cache_service import CacheServie
+
+
+def cached_account(ex: int = 60):
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            key = kwargs['username']
+            if not (cache := await CacheServie().get_from_cache(key=key)):
+                account = await func(*args, **kwargs)
+                account.pop('password')
+                value = await CacheServie().dump_json(account)
+                await CacheServie().set_to_cache(key=key, value=value, ex=ex)
+                return AccountSchema(**account)
+            return AccountSchema(**AccountSchema.from_str_obj(cache))
+
+        return wrapper
+
+    return decorator
 
 
 class AccountPermission:
@@ -22,28 +40,32 @@ class AccountPermission:
             )
         return username
 
-    async def __get_account(self, token, account_collection, **_filters):
-        _filters.update({'username': await self.__decode_token(token=token)})
-        if (account := await account_collection
-                .find_one(filter=_filters)) is None:
+    @cached_account(ex=60)
+    async def __get_account(
+            self, username: str, account_collection, **_filters
+    ):
+        _filters.update({'username': username})
+        if (acc := await account_collection.find_one(filter=_filters)) is None:
             raise_obj_not_found(element='Account')
-        return AccountSchema(**account)
+        return acc
 
     async def get_current_user(
             self, token: str = Depends(OAUTH_TOKEN),
             account_collection=Depends(get_account_collection)):
+        username = await self.__decode_token(token=token)
         return await self.__get_account(
             is_active=True,
-            token=token,
+            username=username,
             account_collection=account_collection
         )
 
     async def get_superuser(
             self, account_collection=Depends(get_account_collection),
             token: str = Depends(OAUTH_TOKEN)):
+        username = await self.__decode_token(token=token)
         return await self.__get_account(
             is_active=True, is_superuser=True,
-            account_collection=account_collection, token=token)
+            account_collection=account_collection, username=username)
 
 
 token_service_data = {
