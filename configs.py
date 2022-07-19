@@ -10,6 +10,8 @@ class Configs(BaseSettings):
     exp_time: int
 
     test: bool
+    host: str
+    kafka_host: str
 
     class Config:
         env_file = '.env'

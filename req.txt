@@ -1,4 +1,6 @@
+aiocron==1.8
 aiofiles==0.8.0
+aiokafka==0.7.2
 aioredis==2.0.1
 anyio==3.6.1
 asgiref==3.5.2
@@ -9,6 +11,7 @@ certifi==2022.6.15
 cffi==1.15.1
 charset-normalizer==2.1.0
 click==8.1.3
+croniter==1.3.5
 cryptography==37.0.4
 dnspython==2.2.1
 ecdsa==0.18.0
@@ -23,6 +26,7 @@ iniconfig==1.1.1
 itsdangerous==2.1.2
 Jinja2==3.1.2
 joblib==1.1.0
+kafka-python==2.0.2
 MarkupSafe==2.1.1
 motor==3.0.0
 numpy==1.23.1
@@ -44,6 +48,7 @@ python-dotenv==0.20.0
 python-jose==3.3.0
 python-multipart==0.0.5
 pytz==2022.1
+pytz-deprecation-shim==0.1.0.post0
 PyYAML==6.0
 requests==2.28.1
 rfc3986==1.5.0
@@ -56,6 +61,8 @@ starlette==0.19.1
 threadpoolctl==3.1.0
 tomli==2.0.1
 typing_extensions==4.3.0
+tzdata==2022.1
+tzlocal==4.2
 ujson==5.4.0
 urllib3==1.26.10
 uvicorn==0.17.6
