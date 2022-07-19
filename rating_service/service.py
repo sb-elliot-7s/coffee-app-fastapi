@@ -4,7 +4,7 @@ import json
 import aiocron
 from .logic import CalculateRatingService
 from coffee.deps import rating_collection
-from kafka_producer import producer
+from kafka_producer import create_producer
 
 
 async def produce():
@@ -12,12 +12,16 @@ async def produce():
     ratings = await service.calculate_rating()
     async for rating in ratings:
         print(rating)
+        producer = await create_producer()
         await producer.start()
-        await producer.send(
-            topic='update_ratings_coffee',
-            key=b'rating',
-            value=json.dumps(rating).encode('utf-8')
-        )
+        try:
+            await producer.send(
+                topic='update_ratings_coffee',
+                key=b'rating',
+                value=json.dumps(rating).encode('utf-8')
+            )
+        finally:
+            await producer.stop()
 
 
 @aiocron.crontab('0 23 * * *')
