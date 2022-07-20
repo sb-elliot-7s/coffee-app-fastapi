@@ -37,11 +37,9 @@ class AccountSchema(BaseAccountSchema):
     updated: Optional[datetime]
 
     @classmethod
-    def from_str_obj(cls, obj: str):
-        acc = json.loads(obj)
+    def from_json(cls, _json: str):
+        acc = json.loads(_json)
         return {**acc, '_id': ObjectId(acc.get('_id'))}
-
-
 
     class Config:
         json_encoders = {

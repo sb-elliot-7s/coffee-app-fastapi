@@ -4,6 +4,7 @@ import pytest
 from .common import CommonDataForTests
 from image_service.image_service import ImageService
 from database import database
+from conftest import get_test_rating_collection
 
 
 class TestCoffeeRoutes:
@@ -138,3 +139,8 @@ class TestCoffeeRoutes:
     async def test_delete_images(self):
         for image in set(self.common_data.IMAGES_ID):
             await ImageService(database=database).delete_image(image_id=image)
+
+    @pytest.mark.asyncio
+    async def test_delete_rating_collection(self):
+        rating_collection = await get_test_rating_collection()
+        await rating_collection.drop()

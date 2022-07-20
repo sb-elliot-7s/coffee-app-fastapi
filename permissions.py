@@ -18,7 +18,7 @@ def cached_account(ex: int = 60):
                 value = await CacheServie().dump_json(account)
                 await CacheServie().set_to_cache(key=key, value=value, ex=ex)
                 return AccountSchema(**account)
-            return AccountSchema(**AccountSchema.from_str_obj(cache))
+            return AccountSchema(**AccountSchema.from_json(cache))
 
         return wrapper
 
@@ -40,7 +40,7 @@ class AccountPermission:
             )
         return username
 
-    @cached_account(ex=60)
+    @cached_account(ex=60 if not get_configs().test else 1)
     async def __get_account(
             self, username: str, account_collection, **_filters
     ):
