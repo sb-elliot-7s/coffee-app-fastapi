@@ -11,8 +11,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 class RecommendCoffee(RecommendCoffeeInterface):
     """
         https://medium.com/geekculture/
-        data-science-movie-recommendation-system-theory-and-simple-python-
-        implementation-90e591106427
+            data-science-movie-recommendation-system-theory-and-simple-python-
+                implementation-90e591106427
     """
 
     def __init__(self, coffee_collection):
@@ -39,14 +39,19 @@ class RecommendCoffee(RecommendCoffeeInterface):
         self.df['description'] = self.df['description'].fillna('')
         self.df['text'] = self.df['title'] + ' ' + self.df['description']
 
-    def recommend_coffee(self, title: str, count_of_coffee_recommend: int = 10):
+    def recommend_coffee(
+            self, title: str, count_of_coffee_recommend: int = 10
+    ):
         idx = self.prepare_index(dataframe=self.df)
         self.preprocessing_dataframe()
         tfidf_matrix = self.prepare_tfidf_matrix(documents=self.df['text'])
         cosine_sim = self.calculate_cosine_sim(tfidf_matrix, tfidf_matrix)
         sim_scores = list(enumerate(cosine_sim[idx[title]]))
 
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        sim_scores = sim_scores[1:count_of_coffee_recommend + 1]
-        movie_indices = [x[0] for x in sim_scores]
+        movie_indices = [
+            x[0] for x in
+            sorted(
+                sim_scores, key=lambda x: x[1], reverse=True
+            )[1:count_of_coffee_recommend + 1]
+        ]
         return self.df['title'].iloc[movie_indices]
